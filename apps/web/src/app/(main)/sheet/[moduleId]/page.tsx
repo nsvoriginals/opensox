@@ -5,9 +5,37 @@ import { sheetModules } from "@/data/sheet";
 import Link from "next/link";
 import { ArrowLeft, Download, Share2, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
-// Helper function to sanitize HTML - only works on client side
+// Cache DOMPurify instance once loaded
+let DOMPurifyInstance: typeof import("dompurify").default | null = null;
+let DOMPurifyPromise: Promise<typeof import("dompurify").default> | null = null;
+
+// Helper function to get DOMPurify instance - loads asynchronously on first call
+const getDOMPurify = async (): Promise<
+  typeof import("dompurify").default | null
+> => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if (DOMPurifyInstance) {
+    return DOMPurifyInstance;
+  }
+
+  if (DOMPurifyPromise) {
+    return DOMPurifyPromise;
+  }
+
+  DOMPurifyPromise = import("dompurify").then((mod) => {
+    DOMPurifyInstance = mod.default;
+    return DOMPurifyInstance;
+  });
+
+  return DOMPurifyPromise;
+};
+
+// Synchronous sanitize function - returns unsanitized if DOMPurify not loaded yet
 const sanitizeHTMLSync = (
   html: string,
   options?: { ALLOWED_TAGS: string[] }
@@ -16,37 +44,39 @@ const sanitizeHTMLSync = (
     return html;
   }
 
-  // Lazy load DOMPurify only when needed on client side
-  // Using require to avoid SSR issues
-  try {
-    const DOMPurify = require("dompurify");
-    // Handle both default export and named export
-    const purify = DOMPurify.default || DOMPurify;
-    if (options) {
-      return purify.sanitize(html, options);
-    }
-    return purify.sanitize(html);
-  } catch (error) {
-    // Fallback if DOMPurify fails to load
-    console.warn(
-      "DOMPurify failed to load, returning unsanitized HTML:",
-      error
-    );
+  if (!DOMPurifyInstance) {
+    // Trigger async load but return unsanitized for now
+    getDOMPurify();
     return html;
   }
+
+  if (options) {
+    return DOMPurifyInstance.sanitize(html, options);
+  }
+  return DOMPurifyInstance.sanitize(html);
 };
 
 export default function ModuleDocPage() {
   const params = useParams();
   const moduleId = params?.moduleId as string;
   const [copied, setCopied] = useState(false);
+  const [isDOMPurifyLoaded, setIsDOMPurifyLoaded] = useState(false);
 
   const currentModule = sheetModules.find((m) => m.id === moduleId);
+
+  // Load DOMPurify on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      getDOMPurify().then(() => {
+        setIsDOMPurifyLoaded(true);
+      });
+    }
+  }, []);
 
   const sanitizedDocContent = useMemo(() => {
     if (!currentModule?.docContent) return "";
     return sanitizeHTMLSync(currentModule.docContent);
-  }, [currentModule?.docContent]);
+  }, [currentModule?.docContent, isDOMPurifyLoaded]);
 
   const handleDownloadPDF = () => {
     if (!currentModule) return;
