@@ -103,7 +103,7 @@ const Navbar = () => {
           <span className="whitespace-nowrap">Opensox AI</span>
         </Link>
       </div>
-      <div className="hidden lg:flex items-center gap-2 xl:gap-3 2xl:gap-4 tracking-tight text-sm xl:text-base 2xl:text-lg font-light xl:font-normal text-[#d1d1d1]">
+      <div className="hidden lg:flex items-center gap-2 xl:gap-3 2xl:gap-4 tracking-tight text-sm xl:text-base 2xl:text-lg font-light xl:font-normal text-text-tertiary">
         {links.map((link, index) => {
           const isActive = pathname === link.href;
           return (
