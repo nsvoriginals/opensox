@@ -67,19 +67,19 @@ const Navbar = () => {
         " z-40  flex items-center justify-between px-4 py-3  bg-neutral-900/5 backdrop-blur-xl  border-white/10",
         isPricingPage
           ? "relative h-max md:w-full top-0 border-b"
-          : "fixed rounded-3xl top-4 border w-[94%] md:w-[80%] mx-auto left-1/2 -translate-x-1/2"
+          : "fixed rounded-3xl top-4 border w-[calc(100%-2rem)] lg:w-[90%] xl:w-[85%] 2xl:w-[80%] max-w-[1600px] mx-auto left-1/2 -translate-x-1/2"
       )}
     >
       <div className="flex items-center gap-3">
         <button
-          className="min-[1115px]:hidden text-white"
+          className="lg:hidden text-white p-2 min-h-[44px] min-w-[44px] flex items-center justify-center -ml-2"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
         >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
-        <div className="text-xl md:text-2xl font-medium tracking-tighter flex items-center gap-2">
+        <Link href="/" className="text-lg lg:text-xl xl:text-2xl font-medium tracking-tighter flex items-center gap-2">
           <div className="w-8 md:w-10 aspect-square overflow-hidden relative">
             <Image
               src="/assets/logo.svg"
@@ -88,10 +88,10 @@ const Navbar = () => {
               className="object-cover w-full h-full"
             />
           </div>
-          <span>Opensox AI</span>
-        </div>
+          <span className="whitespace-nowrap">Opensox AI</span>
+        </Link>
       </div>
-      <div className="hidden min-[1115px]:flex items-center gap-5 max-[1270px]:gap-4 max-[1173px]:gap-3 tracking-tight text-lg max-[1270px]:text-base max-[1173px]:text-sm font-light max-[1173px]:font-normal text-[#d1d1d1]">
+     <div className="hidden lg:flex items-center gap-2 xl:gap-3 2xl:gap-4 tracking-tight text-sm xl:text-base 2xl:text-lg font-light xl:font-normal text-[#d1d1d1]">
         {links.map((link, index) => {
           const isActive = pathname === link.href;
           return (
@@ -108,7 +108,7 @@ const Navbar = () => {
           );
         })}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap 2 lg:gap-3">
         <Link
           href="https://github.com/apsinghdev/opensox"
           target="_blank"
